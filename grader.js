@@ -31,10 +31,13 @@ var CHECKSURL_DEFAULT = "http://pacific-bastion-4335.herokuapp.com/";
 var util = require('util');//Aya
 var rest = require('restler')//Aya
 
-var urlcheck = rest.get('http://pacific-bastion-4335.herokuapp.com/').on('complete',function(result){
-    fs.writeFile('someURL.html',result);
-    //console.log(result);
-});
+var urlcheck = function(url){
+    rest.get(url).on('complete',function(result){
+    return result;
+    //fs.writeFile('someURL.html',result);
+    console.log(result);
+    });
+};
 
 
 
@@ -77,12 +80,18 @@ if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-        .option('-c, --url <web_page>', 'Path to checks.json', clone(assertFileExists), CHECKSURL_DEFAULT)
+        .option('-u, --url <url>', 'Path to urlchecks')
         .parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+    var checkThis = program.file;
+    if(program.url){
+        checkThis = urlcheck(program.url);
+        //checkThis = "someURL.html"
+        
+    }//if
+    
+    var checkJson = checkHtmlFile(checkThis, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
-
